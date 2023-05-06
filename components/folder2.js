@@ -139,7 +139,7 @@ const Folder = (current) => {
                             .find((folder) => folder.fname === selectedFname)
                             .values.map((value,i) => (
                                 <div key={i}>
-                                <li >{value}</li>
+                                <li ><a href={value}>{value}</a></li>
                                 <button onClick={()=>deleteValue(selectedFname,value)}>Delete</button>
                                 </div>
                             ))}
