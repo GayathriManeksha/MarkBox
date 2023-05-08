@@ -17,7 +17,7 @@ const Folder = (current) => {
             console.log("fetch storage")
 
             const fetch = async () => {
-                await storage.get("newfolder").then(
+                await storage.get("newfolder1").then(
                     (bookmarks) => {
                         console.log(bookmarks);
                         setBookmarks(bookmarks || []);
@@ -38,13 +38,13 @@ const Folder = (current) => {
 
     const addFolder = async (name) => {
         { console.log(name.newItem) }
-        const updatedBookmarks=[...bookmarks, { fname: name.newItem, values: [] }];
+        const updatedBookmarks = [...bookmarks, { fname: name.newItem, values: [] }];
         console.log(updatedBookmarks);
         setBookmarks(updatedBookmarks);
-        await storage.set("newfolder",updatedBookmarks)
+        await storage.set("newfolder1", updatedBookmarks)
 
         console.log("Added details are")
-        await storage.get("newfolder").then(
+        await storage.get("newfolder1").then(
             (folders) => {
                 console.log(folders);
             },
@@ -58,19 +58,19 @@ const Folder = (current) => {
         const index = bookmarks.findIndex((item) => item.fname === f);
         const updatedBookmarks = [
             ...bookmarks.slice(0, index),
-            { ...bookmarks[index], values:[...bookmarks[index].values,current.current] },
+            { ...bookmarks[index], values: [...bookmarks[index].values, current.current] },
             ...bookmarks.slice(index + 1)
         ];
         setBookmarks(updatedBookmarks);
         console.log(updatedBookmarks)
-        await storage.set("newfolder", updatedBookmarks)
+        await storage.set("newfolder1", updatedBookmarks)
     }
     const goToFolder = (folder) => {
         console.log("Clicked")
         {
             bookmarks?.map(bookmark => {
                 if (bookmark.fname === folder) {
-                   console.log(bookmark.values)
+                    console.log(bookmark.values)
                 }
             })
         }
@@ -92,10 +92,16 @@ const Folder = (current) => {
     const handleFnameClick = (fname) => {
         setSelectedFname(fname);
     };
-    const deleteFolder = (f) => {
-        setBookmarks((currentfolder) => {
-            return currentfolder.filter(folder => folder.fname !== f)
-        })
+    const deleteFolder = async (f) => {
+
+        const updatedBookmarks=bookmarks.filter(folder => folder.fname !== f)
+        
+        // setBookmarks((currentfolder) => {
+        //     return currentfolder.filter(folder => folder.fname !== f)
+        // })
+        setBookmarks(updatedBookmarks);
+        console.log(updatedBookmarks);
+        await storage.set("newfolder1", updatedBookmarks)
     }
     const deleteValue = async (fname, valueToDelete) => {
         // Find the bookmark object that matches the given fname
@@ -115,7 +121,7 @@ const Folder = (current) => {
 
             // Update the state and the storage
             setBookmarks(updatedBookmarks);
-            await storage.set("newfolder", updatedBookmarks);
+            await storage.set("newfolder1", updatedBookmarks);
         }
     }
 
@@ -137,10 +143,10 @@ const Folder = (current) => {
                     <ul>
                         {bookmarks
                             .find((folder) => folder.fname === selectedFname)
-                            .values.map((value,i) => (
+                            .values.map((value, i) => (
                                 <div key={i}>
-                                <li ><a href={value}>{value}</a></li>
-                                <button onClick={()=>deleteValue(selectedFname,value)}>Delete</button>
+                                    <li ><a href={value}>{value}</a></li>
+                                    <button onClick={() => deleteValue(selectedFname, value)}>Delete</button>
                                 </div>
                             ))}
                     </ul>
