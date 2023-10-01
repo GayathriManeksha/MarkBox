@@ -49,13 +49,14 @@ const Folder = (current) => {
                 console.log(folders);
             },
         )
+        setNewItem('')
     }
 
-    const addbookmark = async (f) => {
-        console.log(f)
+    const addbookmark = async (index) => {
+        console.log(index)
         console.log(current.current)
         console.log(bookmarks)
-        const index = bookmarks.findIndex((item) => item.fname === f);
+        // const index = bookmarks.findIndex((item) => item.fname === f);
         const updatedBookmarks = [
             ...bookmarks.slice(0, index),
             { ...bookmarks[index], values: [...bookmarks[index].values, current.current] },
@@ -88,32 +89,36 @@ const Folder = (current) => {
         // </div>)
     }
     const [selectedFname, setSelectedFname] = useState(null);
+    const [selind,setSelind]=useState(null);
 
-    const handleFnameClick = (fname) => {
+    const handleFnameClick = (fname,ind) => {
         setSelectedFname(fname);
+        setSelind(ind);
     };
-    const deleteFolder = async (f) => {
+    const deleteFolder = async (f,i) => {
 
-        const updatedBookmarks=bookmarks.filter(folder => folder.fname !== f)
-        
+        // const updatedBookmarks=bookmarks.filter(folder => folder.fname !== f)
+        const updatedBookmarks = bookmarks.filter((bookmark, ind) => ind !== i && bookmark !== null && bookmark !== undefined);
+
         // setBookmarks((currentfolder) => {
         //     return currentfolder.filter(folder => folder.fname !== f)
         // })
-        setBookmarks(updatedBookmarks);
         console.log(updatedBookmarks);
+        setBookmarks(updatedBookmarks);
         await storage.set("newfolder1", updatedBookmarks)
     }
-    const deleteValue = async (fname, valueToDelete) => {
+    const deleteValue = async (fnameind, valueToDeleteind) => {
         // Find the bookmark object that matches the given fname
-        const bookmarkToUpdate = bookmarks.find((bookmark) => bookmark.fname === fname);
+        // const bookmarkToUpdate = bookmarks.find((bookmark,i) => i === fnameind);
 
-        if (bookmarkToUpdate) {
-            // Filter out the valueToDelete from the values array of the bookmark
-            const updatedValues = bookmarkToUpdate.values.filter((value) => value !== valueToDelete);
+        // if (bookmarkToUpdate) {
+        //     // Filter out the valueToDelete from the values array of the bookmark
+        //     const updatedValues = bookmarkToUpdate.values.filter((value,ind) => ind !== valueToDeleteind);
 
             // Create a new array with the updated bookmark object
-            const updatedBookmarks = bookmarks.map((bookmark) => {
-                if (bookmark.fname === fname) {
+            const updatedBookmarks = bookmarks.map((bookmark,i) => {
+                if (i === fnameind) {
+                    const updatedValues = bookmark.values.filter((value, ind) => ind !== valueToDeleteind);
                     return { ...bookmark, values: updatedValues };
                 }
                 return bookmark;
@@ -122,7 +127,7 @@ const Folder = (current) => {
             // Update the state and the storage
             setBookmarks(updatedBookmarks);
             await storage.set("newfolder1", updatedBookmarks);
-        }
+        // }
     }
 
     return (
@@ -130,11 +135,11 @@ const Folder = (current) => {
             <h1>Folders</h1>
             <ul>
                 {bookmarks.map((folder, i) => (
-                    <div key={i}>
-                        <li onClick={() => handleFnameClick(folder.fname)}>{folder.fname}</li>
-                        <button onClick={() => addbookmark(folder.fname)}>+</button>
-                        <button onClick={() => deleteFolder(folder.fname)}>Delete</button>
-                    </div>
+                    folder && (<div key={i}>
+                        <li onClick={() => handleFnameClick(folder.fname,i)}>{folder.fname}</li>
+                        <button onClick={() => addbookmark(i)}>+</button>
+                        <button onClick={() => deleteFolder(folder.fname,i)}>Delete</button>
+                    </div>)
                 ))}
             </ul>
             {selectedFname && (
@@ -142,11 +147,10 @@ const Folder = (current) => {
                     <h1>The list of bookmarks under {selectedFname}</h1>
                     <ul>
                         {bookmarks
-                            .find((folder) => folder.fname === selectedFname)
-                            .values.map((value, i) => (
+                            .find((folder,ind) => ind===selind)?.values.map((value, i) => (
                                 <div key={i}>
                                     <li ><a href={value}>{value}</a></li>
-                                    <button onClick={() => deleteValue(selectedFname, value)}>Delete</button>
+                                    <button onClick={() => deleteValue(selind, i)}>Delete</button>
                                 </div>
                             ))}
                     </ul>
